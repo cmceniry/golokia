@@ -193,7 +193,7 @@ func (c *Client) ListProperties(domain, bean string) ([]string, error) {
 }
 
 func (c *Client) GetAttr(domain, bean, attr string) (interface{}, error) {
-	resp, err := c.getAttr("/jolokia/read" + domain + ":" + bean + "/" + attr)
+	resp, err := c.getAttr("/jolokia/read/" + domain + ":" + bean + "/" + attr)
 	if err != nil {
 		return "", err
 	}
