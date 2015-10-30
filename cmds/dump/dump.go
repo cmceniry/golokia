@@ -8,11 +8,11 @@ import (
 
 func main() {
 	if len(os.Args) != 6 {
-		fmt.Fprintf(os.Stderr, "Invalid command line : must specify jolokia target (host,port)")
+		fmt.Fprintf(os.Stderr, "Invalid command line : must specify jolokia target (host, port, jolokiaServiceName, targetHost, targetPort)")
 		os.Exit(-1)
 	}
 	jc := golokia.NewJolokiaClient("http://" + os.Args[1] + ":" + os.Args[2] + "/" + os.Args[3])
-	jc.SetTarget(os.Args[4] + os.Args[5])
+	jc.SetTarget(os.Args[4] + ":" + os.Args[5])
 	domains, err := jc.ListDomains()
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "Unable to get Domains : %s", err)

@@ -195,21 +195,21 @@ func performPostRequest(request *httpRequest) (*httpResponse, error) {
 	var req *http.Request
 	var newReqErr error
 
-	fmt.Println("Request Url: ", url)
-	fmt.Println("Request Body: ", string(request.Body))
+	//fmt.Println("Request Url: ", url)
+	//fmt.Println("Request Body: ", string(request.Body))
 
 	if request.Body != nil {
 		var jsonStr = request.Body
 		req, newReqErr = http.NewRequest("POST", url, bytes.NewBuffer(jsonStr))
 		if newReqErr != nil {
-			fmt.Printf("Request Could not be prepared")
+			//fmt.Printf("Request Could not be prepared")
 			return nil, newReqErr
 		}
 		req.Header.Set("Content-Type", "application/json")
 	} else {
 		req, newReqErr = http.NewRequest("POST", url, nil)
 		if newReqErr != nil {
-			fmt.Printf("Request Could not be prepared")
+			//fmt.Printf("Request Could not be prepared")
 			return nil, newReqErr
 		}
 	}
@@ -222,10 +222,10 @@ func performPostRequest(request *httpRequest) (*httpResponse, error) {
 	}
 	defer resp.Body.Close()
 
-	fmt.Println("response Status:", resp.Status)
-	fmt.Println("response Headers:", resp.Header)
+	//fmt.Println("response Status:", resp.Status)
+	//fmt.Println("response Headers:", resp.Header)
 	body, _ := ioutil.ReadAll(resp.Body)
-	fmt.Println("response Body:", string(body))
+	//fmt.Println("response Body:", string(body))
 
 	response := &httpResponse{}
 	response.Status = resp.Status
