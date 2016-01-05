@@ -62,4 +62,3 @@ val, err := GetAttr(jolokiaUrl, domainName, propertyName, attributeName)
 The Golokia build is success
 The test cases are passing 
 
-###### For any queries or concern add issues or write to : swarvanusg@gmail.com
