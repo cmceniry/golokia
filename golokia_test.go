@@ -1,92 +1,88 @@
 package golokia
 
 import "testing"
+import "fmt"
 
 // Note that these test currently expect a jolokia java process to be
 // running on 7025. Currently tested with a cassandra process2
 
+var (
+	host       = "localhost"
+	port       = "8080"
+	jolokia    = "jolokia-war-1.2.3"
+	targetHost = "localhost"
+	targetPort = "9999"
+)
+
 func TestListDomains(t *testing.T) {
-	domains, err := ListDomains("http://localhost:7025")
+	domains, err := ListDomains("http://" + host + ":" + port)
 	if err != nil {
 		t.Errorf("err(%s) returned", err)
 	}
-	if len(domains) != 11 {
-		t.Errorf("ListDomains = %v, want %v : %#v", len(domains), 11, domains)
-	}
+	fmt.Println("Domains: ", domains)
 }
 
 func TestListBeans(t *testing.T) {
-	beans, err := ListBeans("http://localhost:7025", "java.lang")
+	beans, err := ListBeans("http://"+host+":"+port, "java.lang")
 	if err != nil {
 		t.Errorf("err(%s) returned, err")
 	}
-	if len(beans) != 14 {
-		t.Errorf("ListBeans(java.lang) = %v, want %v : %#v", len(beans), 14, beans)
-	}
+	fmt.Println("Beans: ", beans)
 }
 
 func TestListProperties(t *testing.T) {
-	props, err := ListProperties("http://localhost:7025", "java.lang", "type=Threading")
+	props, err := ListProperties("http://"+host+":"+port, "java.lang", "type=Threading")
 	if err != nil {
 		t.Errorf("err(%s), returned, err")
 	}
-	if len(props) != 16 {
-		t.Errorf("ListProperties(type=Threading) = %v, want %v, : %#v", len(props), 16, props)
-	}
+	fmt.Println("Properties: ", props)
 }
 
 func TestGetAttr(t *testing.T) {
-	val, err := GetAttr("http://localhost:7025", "java.lang", "type=Threading", "PeakThreadCount")
+	val, err := GetAttr("http://"+host+":"+port, "java.lang", "type=Threading", "PeakThreadCount")
 	if err != nil {
 		t.Errorf("err(%s), returned", err)
 	}
-	if val.(float64) <= 100.0 {
-		t.Errorf("GetAttr(PeakThreadCount) = %v, want > 100", val)
-	}
+	fmt.Println("Value:", val)
 }
 
 func TestClientListDomains(t *testing.T) {
-	client := NewClient("localhost", "7025")
+	client := NewJolokiaClient("http://" + host + ":" + port + "/" + jolokia)
+	client.SetTarget(targetHost + ":" + targetPort)
 	domains, err := client.ListDomains()
 	if err != nil {
 		t.Errorf("err(%s) returned", err)
 	}
-	if len(domains) != 11 {
-		t.Errorf("ListDomains = %v, want %v : %#v", len(domains), 11, domains)
-	}
+	fmt.Println("Domains: ", domains)
 }
 
 func TestClientListBeans(t *testing.T) {
-	client := NewClient("localhost", "7025")
+	client := NewJolokiaClient("http://" + host + ":" + port + "/" + jolokia)
+	client.SetTarget(targetHost + ":" + targetPort)
 	beans, err := client.ListBeans("java.lang")
 	if err != nil {
 		t.Errorf("err(%s) returned", err)
 	}
-	if len(beans) != 14 {
-		t.Errorf("ListBeans(java.lang) = %v, want %v : %#v", len(beans), 14, beans)
-	}
+	fmt.Println("Beans: ", beans)
 }
 
 func TestClientListProperties(t *testing.T) {
-	client := NewClient("localhost", "7025")
-	props, err := client.ListProperties("java.lang", "type=Threading")
+	client := NewJolokiaClient("http://" + host + ":" + port + "/" + jolokia)
+	client.SetTarget(targetHost + ":" + targetPort)
+	props, err := client.ListProperties("java.lang", []string{"type=Threading"})
 	if err != nil {
 		t.Errorf("err(%s), returned", err)
 	}
-	if len(props) != 16 {
-		t.Errorf("ListProperties(type=Threading) = %v, want %v, : %#v", len(props), 16, props)
-	}
+	fmt.Println("Properties: ", props)
 }
 
 func TestClientGetAttr(t *testing.T) {
-	client := NewClient("localhost", "7025")
-	val, err := client.GetAttr("java.lang", "type=Threading", "PeakThreadCount")
+	client := NewJolokiaClient("http://" + host + ":" + port + "/" + jolokia)
+	client.SetTarget(targetHost + ":" + targetPort)
+	val, err := client.GetAttr("java.lang", []string{"type=Threading"}, "PeakThreadCount")
 	if err != nil {
 		t.Errorf("err(%s), returned", err)
 		return
 	}
-	if val.(float64) <= 100.0 {
-		t.Errorf("GetAttr(PeakThreadCount) = %v, want > 100", val)
-		return
-	}
+	fmt.Println("Value:", val)
 }
