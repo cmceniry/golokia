@@ -199,3 +199,28 @@ func (c *Client) GetAttr(domain, bean, attr string) (interface{}, error) {
 	}
 	return resp.Value, nil
 }
+
+func (c *Client) ExecOp(domain, bean, attr string) (interface{}, error) {
+	resp, err := c.getAttr("/jolokia/exec/" + domain + ":" + bean + "/" + attr)
+	if err != nil {
+		return "", err
+	}
+	return resp.Value, nil
+}
+
+func (c *Client) ListOperations(domain, bean string) ([]string, error) {
+	resp, err := c.get("/jolokia/list/" + domain + "/" + bean + "?maxDepth=2")
+	if err != nil {
+		return nil, err
+	}
+	if _, ok := resp.Value["op"]; !ok {
+		return nil, errors.New("Invalid repsonse format - missing op")
+	}
+	respItems := resp.Value["op"].(map[string]interface{})
+	ret := make([]string, 0, len(respItems))
+	for key, _ := range respItems {
+		ret = append(ret, key)
+	}
+	sort.Strings(ret)
+	return ret, nil
+}
