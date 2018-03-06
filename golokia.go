@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"net/http"
 	"sort"
+	"strings"
 )
 
 type JolokiaResponse struct {
@@ -100,8 +101,33 @@ func ListProperties(service, domain, bean string) ([]string, error) {
 	return ret, nil
 }
 
+func ListOperations(service, domain, bean string) ([]string, error) {
+	resp, err := get(service + "/jolokia/list/" + domain + "/" + bean + "?maxDepth=2")
+	if err != nil {
+		return nil, err
+	}
+	if _, ok := resp.Value["op"]; !ok {
+		return nil, errors.New("Invalid repsonse format - missing op")
+	}
+	respItems := resp.Value["op"].(map[string]interface{})
+	ret := make([]string, 0, len(respItems))
+	for key, _ := range respItems {
+		ret = append(ret, key)
+	}
+	sort.Strings(ret)
+	return ret, nil
+}
+
 func GetAttr(service, domain, bean, attr string) (interface{}, error) {
 	resp, err := getAttr(service + "/jolokia/read/" + domain + ":" + bean + "/" + attr)
+	if err != nil {
+		return "", err
+	}
+	return resp.Value, nil
+}
+
+func ExecOp(service, domain, bean, operation string, value ...string) (interface{}, error) {
+	resp, err := getAttr(service + "/jolokia/exec/" + domain + ":" + bean + "/" + operation + "/" + strings.Join(value, "/"))
 	if err != nil {
 		return "", err
 	}
@@ -198,4 +224,29 @@ func (c *Client) GetAttr(domain, bean, attr string) (interface{}, error) {
 		return "", err
 	}
 	return resp.Value, nil
+}
+
+func (c *Client) ExecOp(domain, bean, operation string, value ...string) (interface{}, error) {
+	resp, err := c.getAttr("/jolokia/exec/" + domain + ":" + bean + "/" + operation + "/" + strings.Join(value, "/"))
+	if err != nil {
+		return "", err
+	}
+	return resp.Value, nil
+}
+
+func (c *Client) ListOperations(domain, bean string) ([]string, error) {
+	resp, err := c.get("/jolokia/list/" + domain + "/" + bean + "?maxDepth=2")
+	if err != nil {
+		return nil, err
+	}
+	if _, ok := resp.Value["op"]; !ok {
+		return nil, errors.New("Invalid repsonse format - missing op")
+	}
+	respItems := resp.Value["op"].(map[string]interface{})
+	ret := make([]string, 0, len(respItems))
+	for key, _ := range respItems {
+		ret = append(ret, key)
+	}
+	sort.Strings(ret)
+	return ret, nil
 }
