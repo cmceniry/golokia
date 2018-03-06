@@ -14,4 +14,8 @@ beans, err := ListBeans(jolokiaUrl, domainName)
 props, err := ListProperties(jolokiaUrl, domainName, propertyName)
 
 val, err := GetAttr(jolokiaUrl, domainName, propertyName, attributeName)
+
+operations, err := ListOperartions(jolokiaUrl, domainName, beanName)
+
+val, err := ExecOp(jolokiaUrl, domainName, operationName, attributesValues)
 ```
